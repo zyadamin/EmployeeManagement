@@ -2,7 +2,6 @@
 using EmployeeManagement.BLL.Models;
 using EmployeeManagement.Domian.Entity;
 using EmployeeManagement.Domian.Enum;
-using SimpleApi.Domain.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,6 +9,7 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using IUnitOfWork = EmployeeManagement.BLL.Interfaces.IUnitOfWork;
 
 namespace EmployeeManagement.BLL.Services
 {
@@ -17,60 +17,146 @@ namespace EmployeeManagement.BLL.Services
     {
 
         private readonly IUnitOfWork _unitOfWork;
-        public EmployeeService(IUnitOfWork unitOfWork)
+        private readonly Audit.BLL.Interfaces.IAuditService _auditService;
+
+        public EmployeeService(IUnitOfWork unitOfWork, Audit.BLL.Interfaces.IAuditService auditService)
         {
             _unitOfWork = unitOfWork;
+            _auditService = auditService;
         }
 
         public int Add(EmployeeCreateDTO employeeCreateDTO)
         {
-            Employee employee = new Employee()
+            var transaction = _unitOfWork.BeginTransaction();
+            int retValue = 0;
+            try
             {
 
-                Email = employeeCreateDTO.Email,
-                Name = employeeCreateDTO.Name,
-                Projects = employeeCreateDTO.Projects.Select(dto => new Project
+                Employee employee = new Employee()
                 {
-                    Name = dto.Name,
-                    Description = dto.Description,
-                }).ToList()
-            };
-            var result = _unitOfWork.Employee.Add(employee);
 
-            AuditLog auditLog = new AuditLog()
+                    Email = employeeCreateDTO.Email,
+                    Name = employeeCreateDTO.Name,
+                    Projects = employeeCreateDTO.Projects.Select(dto => new Project
+                    {
+                        StartDate = DateTime.Parse(dto.StartDate),
+                        EndDate = string.IsNullOrEmpty(dto.EndDate) ? null : DateTime.Parse(dto.EndDate),
+                        Name = dto.Name,
+                        Description = dto.Description,
+                    }).ToList()
+                };
+                var result = _unitOfWork.Employee.Add(employee);
+                _unitOfWork.Complete();
+
+                string newData = JsonSerializer.Serialize(result);
+
+                _auditService.UseTransaction(transaction);
+                _auditService.LogAudit((int)ActionType.Add, result.Id, DateTime.Now, null, newData);
+
+                transaction.Commit();
+
+                retValue = result.Id;
+
+            }
+            catch
             {
-                id = 1,
-                ActionType = ActionType.Add,
-                EmployeeId = 1,
-                NewData = JsonSerializer.Serialize(employee)
-            };
+                transaction.Rollback();
+            }
+            return retValue;
+        }
 
-            _unitOfWork.Audit.Add(auditLog);
-            _unitOfWork.SaveChanges();
+        public int Update(EmployeeDetailsDTO entity)
+        {
+            var transaction = _unitOfWork.BeginTransaction();
+            int retValue = 0;
+            try
+            {
+                var employee = _unitOfWork.Employee.GetByIdIncludeProject(entity.Id);
+                string oldData = JsonSerializer.Serialize(employee);
 
-            return result.Id;
+                employee.Name = entity.Name;
+                employee.Email = entity.Email;
+
+                //update projects
+                foreach (var project in entity.Projects)
+                {
+                    var oldProject = employee.Projects.FirstOrDefault(x => x.Id == project.Id);
+
+                    if (oldProject != null)
+                    {
+                        oldProject.Name = project.Name;
+                        oldProject.Description = project.Description;
+                        oldProject.StartDate = DateTime.Parse(project.StartDate);
+                        oldProject.EndDate = string.IsNullOrEmpty(project.EndDate) ? null : DateTime.Parse(project.EndDate);
+                    }
+                    else
+                    {
+                        Project newProject = new Project()
+                        {
+                            Name = project.Name,
+                            Description = project.Description,
+                            StartDate = DateTime.Parse(project.StartDate),
+                            EndDate = string.IsNullOrEmpty(project.EndDate) ? null : DateTime.Parse(project.EndDate),
+                        };
+
+                        employee.Projects.Add(newProject);
+                    }
+                }
+
+                string newData = JsonSerializer.Serialize(employee);
+
+                //delete projects 
+                foreach (var project in employee.Projects)
+                {
+                    if (!entity.Projects.Any(x => x.Id == project.Id))
+                    {
+                        _unitOfWork.Project.Delete(project);
+                    }
+                }
+
+                var result = _unitOfWork.Employee.Update(employee);
+                _unitOfWork.Complete();
+
+                retValue = result.Id;
+
+                _auditService.UseTransaction(transaction);
+                _auditService.LogAudit((int)ActionType.Update, result.Id, DateTime.Now, oldData, newData);
+
+
+                transaction.Commit();
+            }
+            catch (Exception)
+            {
+                transaction.Rollback();
+            }
+
+            return retValue;
         }
 
         public void Delete(int id)
         {
-            Employee employee = _unitOfWork.Employee.GetByIdIncludeProject(id);
-            foreach (var project in employee.Projects)
+            var transaction = _unitOfWork.BeginTransaction();
+            try
             {
+                Employee employee = _unitOfWork.Employee.GetByIdIncludeProject(id);
+                foreach (var project in employee.Projects)
+                {
+                    _unitOfWork.Project.Delete(project);
+                }
+                _unitOfWork.Employee.Delete(employee);
+                _unitOfWork.Complete();
 
-                _unitOfWork.Project.Delete(project);
+                _auditService.UseTransaction(transaction);
+                _auditService.LogAudit((int)ActionType.Delete, id, DateTime.Now, null, null);
+
+
+                transaction.Commit();
             }
-            AuditLog auditLog = new AuditLog()
+            catch (Exception)
             {
-                id = employee.Id,
-                ActionType = ActionType.Delete,
-                EmployeeId = 1,
-            };
 
-            _unitOfWork.Employee.Delete(employee);
-
-            _unitOfWork.Audit.Add(auditLog);
-
-            _unitOfWork.SaveChanges();
+                transaction.Rollback();
+            }
         }
 
         public EmployeeDetailsDTO GetById(int id)
@@ -86,6 +172,8 @@ namespace EmployeeManagement.BLL.Services
                     Id = emp.Id,
                     Name = emp.Name,
                     Description = emp.Description,
+                    StartDate = emp.StartDate.ToShortDateString(),
+                    EndDate = emp.EndDate?.ToShortDateString()
                 }).ToList(),
 
             };
@@ -115,64 +203,18 @@ namespace EmployeeManagement.BLL.Services
             return employeeList;
         }
 
-        public int Update(EmployeeDetailsDTO entity)
+        public bool CheckUniqueEmail(string email)
         {
-            var oldEmployee = _unitOfWork.Employee.GetByIdIncludeProject(entity.Id);
+            return _unitOfWork.Employee.CheckUniqueEmail(email);
+        }
 
-            AuditLog auditLog = new AuditLog()
+        public List<EmployeeModel> GetEmployees()
+        {
+            return _unitOfWork.Employee.GetEmployees().Select(Employee => new EmployeeModel()
             {
-                ActionType = ActionType.Update,
-                EmployeeId = oldEmployee.Id,
-                OldData = JsonSerializer.Serialize(oldEmployee)
-            };
-
-            oldEmployee.Name = entity.Name;
-            oldEmployee.Email = entity.Email;
-
-            foreach (var project in entity.Projects)
-            {
-                var oldProject = oldEmployee.Projects.FirstOrDefault(x => x.Id == project.Id);
-
-                if (oldProject != null)
-                {
-                    oldProject.Name = project.Name;
-                    oldProject.Description = project.Description;
-                }
-                else
-                {
-                    Project newProject = new Project()
-                    {
-                        Name = project.Name,
-                        Description = project.Description
-                    };
-
-                    oldEmployee.Projects.Add(newProject);
-                }
-            }
-
-            List<Project> DeletedProjects = new List<Project>();
-            foreach (var project in oldEmployee.Projects)
-            {
-                if (!entity.Projects.Any(x => x.Id == project.Id))
-                {
-
-                    DeletedProjects.Add(project);
-                }
-            }
-
-            auditLog.NewData = JsonSerializer.Serialize(oldEmployee);
-
-            var result = _unitOfWork.Employee.Update(oldEmployee);
-            foreach (var project in DeletedProjects)
-            {
-                _unitOfWork.Project.Delete(project);
-            }
-
-            _unitOfWork.Audit.Add(auditLog);
-
-
-            _unitOfWork.Complete();
-            return result.Id;
+                Id = Employee.Id,
+                Name = Employee.Name,
+            }).ToList();
         }
     }
 }

@@ -1,0 +1,11 @@
+<div class="employee-list">
+  <h1>Employee List</h1>
+  <button routerLink="/Employee/Create">Add Employee</button>
+
+  <app-table
+    [columns]="columns"
+    [data]="employees"
+    [actions]="actions"
+    (actionClicked)="handleAction($event)"
+  ></app-table>
+</div>

@@ -1,0 +1,61 @@
+
+<h2 mat-dialog-title>Changes</h2>
+<mat-dialog-content>
+  <div class="data-container">
+    <div class="column">
+      <h3>Old Data</h3>
+      <div>
+        <strong>Name:</strong> {{ data?.oldData?.Name }}
+      </div>
+      <div>
+        <strong>Email:</strong> {{ data?.oldData?.Email }}
+      </div>
+      <div *ngIf="data.oldData?.Projects?.length > 0;">
+      <h4>Projects:</h4>
+      <div *ngFor="let project of data.oldData.Projects">
+        <div>
+          <strong>Project Name:</strong> {{ project?.Name }}
+        </div>
+        <div>
+          <strong>Description:</strong> {{ project?.Description }}
+        </div>
+        <div>
+          <strong>StartDate:</strong> {{ project?.StartDate }}
+        </div>
+        <div>
+          <strong>EndDate:</strong> {{ project?.EndDate }}
+        </div>
+        <hr />
+      </div>
+    </div>
+    </div>
+
+    <div class="column">
+      <h3>New Data</h3>
+      <div>
+        <strong>Name:</strong> {{ data?.newData?.Name }}
+      </div>
+      <div>
+        <strong>Email:</strong> {{ data?.newData?.Email }}
+      </div>
+      <div *ngIf="data.newData.Projects?.length > 0;">
+      <h4>Projects:</h4>
+      <div *ngFor="let project of data.newData.Projects">
+        <div>
+          <strong>Project Name:</strong> {{ project?.Name }}
+        </div>
+        <div>
+          <strong>Description:</strong> {{ project?.Description }}
+        </div>
+        <div>
+          <strong>StartDate:</strong> {{ project?.StartDate }}
+        </div>
+        <div>
+          <strong>EndDate:</strong> {{ project?.EndDate }}
+        </div>
+        <hr />
+      </div>
+      </div>
+    </div>
+  </div>
+</mat-dialog-content>

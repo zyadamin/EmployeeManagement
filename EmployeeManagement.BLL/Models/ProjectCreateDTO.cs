@@ -16,5 +16,10 @@ namespace EmployeeManagement.BLL.Models
         [Required]
         [MaxLength(200)]
         public string Description { get; set; }
+
+        [Required]
+        public string StartDate { get; set; }
+
+        public string? EndDate { get; set; }
     }
 }

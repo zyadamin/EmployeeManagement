@@ -15,6 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Audit.DAL\Audit.DAL.csproj" />
     <ProjectReference Include="..\EmployeeManagement.DAL\EmployeeManagement.DAL.csproj" />
   </ItemGroup>
 

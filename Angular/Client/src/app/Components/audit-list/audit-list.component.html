@@ -1,0 +1,18 @@
+<div class="form-group">
+  <label for="employeeSelect">Select Employee</label>
+  <select id="employeeSelect" class="form-control" (change)="onEmployeeChange($event)">
+    <option *ngFor="let employee of employees" [value]="employee.id">
+      {{ employee.name }}
+    </option>
+  </select>
+</div>
+
+
+<div class="Audit-list">
+  <app-table
+    [columns]="columns"
+    [data]="audits"
+    [actions]="actions"
+    (actionClicked)="handleAction($event)"
+  ></app-table>
+</div>

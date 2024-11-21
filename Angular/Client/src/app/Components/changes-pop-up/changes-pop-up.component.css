@@ -1,0 +1,20 @@
+.data-container {
+    display: flex;
+    gap: 20px;
+  }
+  
+  .column {
+    flex: 1;
+  }
+  
+  h3, h4 {
+    margin-top: 10px;
+    margin-bottom: 5px;
+  }
+  
+  hr {
+    border: 0;
+    border-top: 1px solid #ddd;
+    margin: 10px 0;
+  }
+  

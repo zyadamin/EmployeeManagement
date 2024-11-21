@@ -4,17 +4,15 @@ using EmployeeManagement.DAL.Context;
 using EmployeeManagement.DAL.Repositories;
 using EmployeeManagement.Domian.Entity;
 using Microsoft.EntityFrameworkCore.Storage;
-using SimpleApi.Domain.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace SimpleApi.DAL.UnitOfWorks
+namespace EmployeeManagement.DAL.UnitOfWorks
 {
     public class UnitOfWork : IUnitOfWork
     {
         private readonly MainDbContext _mainDbContext;
-        private readonly AuditDbContext _auditDbContext;
         private IDbContextTransaction _transaction;
 
 
@@ -22,57 +20,52 @@ namespace SimpleApi.DAL.UnitOfWorks
 
         public IProjectRepository Project { get; private set; }
 
-        public IAuditRepository Audit { get; private set; }
 
-        public UnitOfWork(MainDbContext mainDbContext,AuditDbContext auditDbContext)
+        public UnitOfWork(MainDbContext mainDbContext)
         {
             _mainDbContext = mainDbContext;
-            _auditDbContext = auditDbContext;
 
             Employee = new EmployeeRepository(_mainDbContext);
             Project = new ProjectRepository(_mainDbContext);
-            Audit = new AuditRepository(_auditDbContext);
+        }
+
+        public IDbContextTransaction BeginTransaction() {
+            return _mainDbContext.Database.BeginTransaction();
         }
 
         public int Complete()
         {
             return _mainDbContext.SaveChanges();
-
-        }
-        public int CompleteAudit()
-        {
-            return _auditDbContext.SaveChanges();
-
         }
 
-        public int SaveChanges()
-        {
-            int result = 0;
 
-            using (_transaction = _mainDbContext.Database.BeginTransaction())
-            {
-                try
-                {
-                    result +=  _mainDbContext.SaveChanges();
+        //public int SaveChanges()
+        //{
+        //    int result = 0;
 
-                    result +=  _auditDbContext.SaveChanges();
+        //    using (_transaction = _mainDbContext.Database.BeginTransaction())
+        //    {
+        //        try
+        //        {
+        //            result += _mainDbContext.SaveChanges();
 
-                    _transaction.Commit();
-                }
-                catch
-                {
-                    _transaction.Rollback();
-                    throw;
-                }
-            }
+        //            result += _auditDbContext.SaveChanges();
 
-            return result;
-        }
+        //            _transaction.Commit();
+        //        }
+        //        catch
+        //        {
+        //            _transaction.Rollback();
+        //            throw;
+        //        }
+        //    }
+
+        //    return result;
+        //}
 
         public void Dispose()
         {
             _mainDbContext.Dispose();
-            _auditDbContext.Dispose();
             _transaction?.Dispose();
         }
     }

@@ -1,17 +1,16 @@
-﻿using EmployeeManagement.BLL.Interfaces;
+﻿using Microsoft.EntityFrameworkCore.Storage;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace SimpleApi.Domain.Interfaces
+namespace EmployeeManagement.BLL.Interfaces
 {
     public interface IUnitOfWork : IDisposable
     {
         IEmployeeRepository Employee { get; }
         IProjectRepository Project { get; }
-        IAuditRepository Audit { get; }
+        IDbContextTransaction BeginTransaction();
         int Complete();
-        int CompleteAudit();
-        int SaveChanges();
+        //int SaveChanges();
     }
 }

@@ -8,8 +8,8 @@ namespace EmployeeManagement.Domian.Enum
 {
     public enum ActionType
     {
-        Add = 1, 
-        Update =2, 
-        Delete =3,
+        Add = 1,
+        Update = 2,
+        Delete = 3,
     }
 }

@@ -7,10 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.36" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Audit.BLL\Audit.BLL.csproj" />
     <ProjectReference Include="..\Domian\EmployeeManagement.Domian.csproj" />
   </ItemGroup>
 

@@ -62,7 +62,7 @@ namespace EmployeeManagement.Controllers
             try
             {
                 _employeeService.Delete(id);
-                return Ok("Employee Deleted");
+                return Ok();
             }
             catch (Exception e)
             {
@@ -112,5 +112,33 @@ namespace EmployeeManagement.Controllers
 
 
         }
+
+        [HttpPost]
+        public IActionResult CheckUniqueEmail(string email)
+        {
+            try
+            {
+                return Ok(_employeeService.CheckUniqueEmail(email));
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+
+        [HttpPost]
+        public IActionResult GetEmployees()
+        {
+            try
+            {
+                return Ok(_employeeService.GetEmployees());
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
     }
 }

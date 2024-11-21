@@ -10,7 +10,9 @@ namespace EmployeeManagement.BLL.Interfaces
     public interface IEmployeeRepository : IGenericRepository<Employee>
     {
         IEnumerable<Employee> ListEmployee(int start, int size);
+        IEnumerable<Employee> GetEmployees();
 
         Employee GetByIdIncludeProject(int id);
+        bool CheckUniqueEmail(string email);
     }
 }

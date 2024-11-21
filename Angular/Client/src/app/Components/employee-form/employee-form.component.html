@@ -1,0 +1,63 @@
+
+<form class="row g-3" [formGroup]="employeeForm" (submit)="openSubmitConfirmation()">
+  <div class="col-md-6">
+    <label for="name" class="form-label">Name</label>
+    <input type="text" class="form-control"  name="name" formControlName="name">
+    <div class="text-danger" *ngIf="name?.touched && name?.invalid">
+      <p *ngIf="name?.errors['required']">Name is Required</p>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <label for="email" class="form-label">Email</label>
+    <input type="email" class="form-control" name="email" formControlName="email" (blur)="checkEmail()">
+    <div class="text-danger" *ngIf="email.touched && email.invalid">
+      <p *ngIf="email?.hasError('emailAlreadyExists')">Email is already in use.</p>
+      <p *ngIf="email.errors['required']">Email is Required</p>
+      <p *ngIf="email.errors['email']">Enter  valid Email</p>
+    </div>
+  </div>
+
+  <div formArrayName="projects">
+    <div *ngFor="let project of Projects.controls; let i=index">
+      <div class="row" [formGroupName]="i">
+
+        <div class="col-md-5">
+          <label for="projectName" class="form-label">Project Name</label>
+          <input type="text" class="form-control" name="projectName" formControlName="name">
+          <div *ngIf="project.get('name')?.touched && project.get('name')?.invalid">
+            <small *ngIf="project.get('name')?.hasError('required')" class="text-danger">Project name is required.</small>
+          </div>
+        </div>
+        <div class="col-md-5">
+          <label for="description" class="form-label">Description</label>
+          <input type="text" class="form-control" name="description" formControlName="description">
+          <div *ngIf="project.get('description')?.touched && project.get('description')?.invalid">
+            <small *ngIf="project.get('description')?.hasError('required')" class="text-danger">Description is required.</small>
+          </div>
+        </div> 
+
+        <div class="col-md-5">
+          <label for="startDate" class="form-label">Start Date</label>
+          <input type="text" class="form-control" name="startDate" formControlName="startDate">
+          <div *ngIf="project.get('startDate')?.touched && project.get('startDate')?.invalid">
+            <small *ngIf="project.get('startDate')?.hasError('required')" class="text-danger">Start Date is required.</small>
+          </div>
+        </div>
+        <div class="col-md-5">
+          <label for="endDate" class="form-label">End Date</label>
+          <input type="text" class="form-control" name="endDate" formControlName="endDate">
+        </div>
+        <div class="col-md-4">
+        <button class="btn btn-dark" (click)="removeProject(i)">Remove</button>
+      </div>
+      </div>
+    </div>
+  </div>
+  <div class="text-danger" *ngIf="Projects?.errors?.duplicateProjectNames">
+   <p> Duplicate project names are not allowed.</p>
+  </div>
+  <div class="col">
+    <button type="submit" class="btn btn-primary" [disabled]="employeeForm.invalid">Submit</button>
+  </div>
+</form>
+<button class="btn btn-secondary" (click)="addProject()">Add Project</button>

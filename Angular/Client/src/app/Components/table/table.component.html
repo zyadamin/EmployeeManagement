@@ -1,0 +1,18 @@
+<table class="table">
+  <thead>
+    <tr>
+      <th *ngFor="let column of columns">{{ column }}</th>
+      <th *ngIf="actions.length > 0">Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let row of data">
+      <td *ngFor="let column of columns">{{ row[column.toLowerCase()] }}</td>
+      <td *ngIf="actions.length > 0">
+        <button *ngFor="let action of actions" (click)="onAction(action, row)">
+          {{ action }}
+        </button>
+      </td>
+    </tr>
+  </tbody>
+</table>
