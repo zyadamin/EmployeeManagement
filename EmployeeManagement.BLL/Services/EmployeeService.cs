@@ -203,9 +203,9 @@ namespace EmployeeManagement.BLL.Services
             return employeeList;
         }
 
-        public bool CheckUniqueEmail(string email)
+        public bool CheckUniqueEmail(string email,int? id)
         {
-            return _unitOfWork.Employee.CheckUniqueEmail(email);
+            return _unitOfWork.Employee.CheckUniqueEmail(email,id);
         }
 
         public List<EmployeeModel> GetEmployees()

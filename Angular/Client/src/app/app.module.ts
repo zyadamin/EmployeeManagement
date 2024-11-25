@@ -18,6 +18,7 @@ import { EmployeeFormComponent } from './Components/employee-form/employee-form.
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { AuditListComponent } from './Components/audit-list/audit-list.component';
 import { ChangesPopUpComponent } from './Components/changes-pop-up/changes-pop-up.component';
+import { LoginComponent } from './Components/login/login.component';
 
 @NgModule({
   declarations: [
@@ -30,7 +31,8 @@ import { ChangesPopUpComponent } from './Components/changes-pop-up/changes-pop-u
     ConfirmationDialogComponent,
     EmployeeFormComponent,
     AuditListComponent,
-    ChangesPopUpComponent
+    ChangesPopUpComponent,
+    LoginComponent
   ],
   imports: [
     BrowserModule,

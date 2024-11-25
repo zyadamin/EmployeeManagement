@@ -20,8 +20,8 @@ export class EmployeeFormComponent implements OnInit {
 
   employeeForm: FormGroup;
   employeeId: string | null = null;
-  isEditMode:boolean;
-  employee:IEmployeeDetails;
+  isEditMode: boolean;
+  employee: IEmployeeDetails;
   constructor(private fb: FormBuilder,
     private employeeService: EmployeeService,
     private router: Router,
@@ -31,24 +31,26 @@ export class EmployeeFormComponent implements OnInit {
 
     this.employeeForm = this.fb.group({
       name: new FormControl('', [Validators.required]),
-      email: new FormControl('', {validators:[Validators.required,Validators.email],
-        asyncValidators:[uniqueEmailValidator(this.employeeService)],
-        updateOn:'blur'}),
+      email: new FormControl('', {
+        validators: [Validators.required, Validators.email],
+        asyncValidators: [uniqueEmailValidator(this.employeeService)],
+        updateOn: 'blur'
+      }),
       projects: this.fb.array([], { validators: projectNameValidator })
 
     });
   }
 
-  checkEmail(){
+  checkEmail() {
     console.log("checkEmail");
 
-    if(this.employee && this.email.value != this.employee.email){
-      if(!this.email.asyncValidator){
-        this.email.setAsyncValidators(uniqueEmailValidator(this.employeeService));
+    if (this.employee && this.email.value != this.employee.email) {
+      if (!this.email.asyncValidator) {
+        this.email.setAsyncValidators(uniqueEmailValidator(this.employeeService, this.employee.id));
         this.email.updateValueAndValidity();
       }
     }
-    else{this.email.clearAsyncValidators();}
+    else { this.email.clearAsyncValidators(); }
   }
 
   ngOnInit() {
@@ -110,8 +112,8 @@ export class EmployeeFormComponent implements OnInit {
               id: project.id,
               name: project.name,
               description: project.description,
-              startDate:project.startDate,
-              endDate:project.endDate
+              startDate: project.startDate,
+              endDate: project.endDate
             })),
           }
 
@@ -131,8 +133,8 @@ export class EmployeeFormComponent implements OnInit {
             projects: this.Projects.value.map((project: IProjectRequest) => ({
               name: project.name,
               description: project.description,
-              startDate:project.startDate,
-              endDate:project.endDate
+              startDate: project.startDate,
+              endDate: project.endDate
             })),
           }
 
@@ -154,7 +156,7 @@ export class EmployeeFormComponent implements OnInit {
   getEmployee(id: number): void {
     this.employeeService.getEmployee(id).subscribe({
       next: (employee: IEmployeeDetails) => {
-        this.employee=employee;
+        this.employee = employee;
         this.employeeForm.patchValue({
           name: employee.name,
           email: employee.email,
@@ -167,8 +169,8 @@ export class EmployeeFormComponent implements OnInit {
               id: [project.id],
               name: [project.name, Validators.required],
               description: [project.description, Validators.required],
-              startDate:[project.startDate, Validators.required],
-              endDate:[project.endDate],
+              startDate: [project.startDate, Validators.required],
+              endDate: [project.endDate],
             })
           );
         });
@@ -180,7 +182,7 @@ export class EmployeeFormComponent implements OnInit {
       }
     });
   }
-  
+
 }
 
 

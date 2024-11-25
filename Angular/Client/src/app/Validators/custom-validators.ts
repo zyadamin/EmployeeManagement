@@ -21,14 +21,16 @@ export function projectNameValidator(control: AbstractControl):ValidationErrors 
     };
 
 
-    export function uniqueEmailValidator(employeeService: EmployeeService): AsyncValidatorFn {
+    export function uniqueEmailValidator(employeeService: EmployeeService,id?:number): AsyncValidatorFn {
         return (control: AbstractControl): Observable<ValidationErrors | null> => {
+
+          console.log("zysad")
           if (!control.value) {
             return null;
           }
       
           return employeeService
-          .checkIfEmailUnique(control.value)
-          .pipe(map((result: boolean) => result ? { emailAlreadyExists: true } : null));
+          .checkIfEmailUnique(control.value,id)
+          .pipe(map((result: boolean) => result ?  null :{ emailAlreadyExists: true }));
         };
       }

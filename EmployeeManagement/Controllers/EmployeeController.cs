@@ -114,11 +114,11 @@ namespace EmployeeManagement.Controllers
         }
 
         [HttpPost]
-        public IActionResult CheckUniqueEmail(string email)
+        public IActionResult CheckUniqueEmail(string email,int ? id)
         {
             try
             {
-                return Ok(_employeeService.CheckUniqueEmail(email));
+                return Ok(_employeeService.CheckUniqueEmail(email,id));
             }
             catch (Exception e)
             {

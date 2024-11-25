@@ -15,7 +15,7 @@ namespace EmployeeManagement.BLL.Interfaces
         int Update(EmployeeDetailsDTO entity);
         void Delete(int id);
         List<EmployeeViewDTO> List(int start, int size);
-        bool CheckUniqueEmail(string email);
+        bool CheckUniqueEmail(string email,int? id);
         List<EmployeeModel> GetEmployees();
     }
 }

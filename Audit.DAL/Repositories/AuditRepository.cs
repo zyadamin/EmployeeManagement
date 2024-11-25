@@ -27,5 +27,11 @@ namespace Audit.DAL.Repositories
         {
             return _auditDbContext.AuditLog.Where(x => x.EmployeeId == employeeId).ToList();
         }
+
+        public List<AuditEmployeeName> GetAllEmployeeName()
+        {
+            return _auditDbContext.AuditEmployeeName.ToList();
+        }
+
     }
 }

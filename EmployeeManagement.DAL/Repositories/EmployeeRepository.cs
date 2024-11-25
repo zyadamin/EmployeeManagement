@@ -19,9 +19,11 @@ namespace EmployeeManagement.DAL.Repositories
             _mainDbContext = mainDbContext;
         }
 
-        public bool CheckUniqueEmail(string email)
+        public bool CheckUniqueEmail(string email,int? id)
         {
-            return  _mainDbContext.Employee.Any(x => x.Email == email);
+            var emailExists = _mainDbContext.Employee.Any(e => e.Email == email && e.Id != id);
+
+            return (!emailExists);
         }
 
         public Employee GetByIdIncludeProject(int id)

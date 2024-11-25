@@ -13,6 +13,6 @@ namespace EmployeeManagement.BLL.Interfaces
         IEnumerable<Employee> GetEmployees();
 
         Employee GetByIdIncludeProject(int id);
-        bool CheckUniqueEmail(string email);
+        bool CheckUniqueEmail(string email,int? id);
     }
 }

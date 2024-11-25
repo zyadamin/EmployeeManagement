@@ -17,6 +17,8 @@ namespace Audit.DAL.Context
 
         public DbSet<AuditLog> AuditLog { get; set; }
 
+        public DbSet<AuditEmployeeName> AuditEmployeeName { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
 
@@ -32,6 +34,12 @@ namespace Audit.DAL.Context
                                 .HasColumnType("nvarchar(max)");
                 }
                 );
+
+
+            modelBuilder
+                .Entity<AuditEmployeeName>()
+                .ToView("Audit Employee Name")
+                .HasKey(t => t.Id);
 
 
         }

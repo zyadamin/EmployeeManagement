@@ -12,5 +12,7 @@ namespace Audit.BLL.Interfaces
         AuditLog Add(AuditLog audit);
         List<AuditLog> GetAllByEmployeeId(int employeeId);
 
+        List<AuditEmployeeName> GetAllEmployeeName();
+
     }
 }

@@ -24,10 +24,11 @@ namespace Audit.BLL.Services
 
         public List<AuditLogViewDTO> GetAllByEmployeeId(int employeeId)
         {
+            var EmployeesName = _unitOfWork.Audit.GetAllEmployeeName();
             return _unitOfWork.Audit.GetAllByEmployeeId(employeeId).Select(audit => new AuditLogViewDTO()
             {
 
-                Name = string.IsNullOrEmpty(audit.NewData) ? "test" : JsonConvert.DeserializeObject<dynamic>(audit.NewData).Name,
+                Name = EmployeesName.FirstOrDefault(x=>x.Id == employeeId)?.Name ?? "",
                 Action = Helper.ActionTypes[(int)audit.ActionType-1],
                 Timestamp = audit.Timestamp.ToShortTimeString(),
                 NewData = audit.NewData,
